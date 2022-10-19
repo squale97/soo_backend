@@ -14,9 +14,10 @@ class Product(db.Document):
     boutique = db.StringField()
     image = db.FileField()
     prix = db.StringField()
-    created_at = db.StringField()
+    created_at = db.StringField(default=str(datetime.datetime.utcnow()))
     updated_at = db.StringField()
     categorie = db.StringField()
+    quantite = db.IntField()
 
 
 
@@ -36,6 +37,7 @@ class Product(db.Document):
         data["updated-at"] = self.updated_at
         data["created_at"] = self.created_at
         data["categorie"] = self.categorie
+        data["quantite"] = self.quantite
 
         return data
 

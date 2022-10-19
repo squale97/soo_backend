@@ -20,7 +20,8 @@ def product_list():
             products = Product.objects()
             produits= []
             for product in products:
-                produits.append({"nom":product.nom})
+                produits.append({"nom":product.nom, "description":product.description,
+                "taille":product.taille, "prix":product.prix, "boutique":product.boutique, "categorie":product.categorie, "quantite":product.quantite})
             return sook_response(200, "succès", {"produits":produits})
         else:
             return sook_response(401, "erreur", {"title":"Information de sessio indisponible"})
@@ -43,11 +44,41 @@ def add_product():
                     prix = data["prix"]
                     taille = data["taille"]
                     categorie = data["categorie"]
-                    product_add = Product(nom = nom, taille=taille, prix=prix,categorie=categorie, boutique=boutique, description=description)
+                    quantite = data["quantite"]
+                    product_add = Product(nom = nom, taille=taille, prix=prix,categorie=categorie, boutique=boutique, description=description, quantite=quantite)
                     product_add.save()
                     return sook_response(200, "succès", product_add.info())
                 return sook_response(401, "erreur", {"title":"informations de produits indosponibles"})
             else:
                 return sook_response(401, 'Opération Non Authorisée', "Session expirée. Vous devez vous reconnecter.")
         return sook_response(403, "erreur" ,{"title":"Opération non authorisée"})
-    return sook_response(403, "erreur", {"title":"Cette interface n'accepte que la methode POST"})    
+    return sook_response(403, "erreur", {"title":"Cette interface n'accepte que la methode POST"})  
+
+
+@app.route("/update-product/<id>",methods=['GET','POST','PUT','UPDATE','DELETE','POST', 'OPTIONS'])  
+def update_product(id):
+    if request.method=="POST":
+        credentials = basicAuthSession(fk.request)
+        if credentials:
+            authorized, session = allowed(fk)
+            if authorized:
+                update_product = Product.objects(id=id).first()
+                data = fk.request.get_json()
+                nom = data["nom"]
+                description = data["description"]
+                boutique = data["boutique"]
+                prix = data["prix"]
+                taille = data["taille"]
+                categorie = data["categorie"]
+                update_product.nom = nom
+                update_product.description = description
+                update_product.boutique = boutique
+                update_product.prix = prix
+                update_product.taille = taille
+                update_product.categorie = categorie
+                updated_at  = str(datetime.datetime.utcnow())
+                update_product.updated_at = updated_at
+                update_product.save()
+            return sook_response(401, 'Opération Non Authorisée', "Session expirée. Vous devez vous reconnecter.")
+        return sook_response(403, "erreur" ,{"title":"Opération non authorisée"})
+    return sook_response(403, "erreur", {"title":"Cette interface n'accepte que la methode POST"})      
